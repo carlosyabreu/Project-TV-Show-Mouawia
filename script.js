@@ -1,5 +1,6 @@
 let allEpisodesData = [];
 
+// Helper: Remove HTML tags from summaries for better searching
 function stripHtml(html) {
   if (!html) return "";
   const div = document.createElement("div");
@@ -7,14 +8,45 @@ function stripHtml(html) {
   return div.textContent || div.innerText || "";
 }
 
+// Requirement 3: Updates the "Displaying X/Y episodes" text
+function updateCounter(count, total) {
+  const countDisplay = document.getElementById("episode-count");
+  countDisplay.textContent = `Displaying ${count}/${total} episodes`;
+}
+
+// Requirement 3: Fills the dropdown list
+function populateSelect(allEpisodes) {
+  const select = document.getElementById("episode-select");
+  select.innerHTML = '<option value="">All Episodes</option>';
+  
+  allEpisodes.forEach((episode) => {
+    const season = String(episode.season).padStart(2, "0");
+    const number = String(episode.number).padStart(2, "0");
+    const episodeCode = `S${season}E${number}`;
+    
+    const option = document.createElement("option");
+    option.value = episode.id;
+    option.textContent = `${episodeCode} - ${episode.name}`;
+    select.appendChild(option);
+  });
+
+  select.addEventListener("change", (e) => {
+    const selectedId = e.target.value;
+    if (selectedId === "") {
+      makePageForEpisodes(allEpisodesData);
+      updateCounter(allEpisodesData.length, allEpisodesData.length);
+    } else {
+      const selectedEpisode = allEpisodesData.filter(ep => ep.id == selectedId);
+      makePageForEpisodes(selectedEpisode);
+      updateCounter(1, allEpisodesData.length);
+    }
+  });
+}
+
+// Builds the episode cards grid
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
-  rootElem.innerHTML = ""; // Clear the loading message or old episodes
-
-  if (episodeList.length === 0) {
-    rootElem.innerHTML = "<p>No episodes match your search.</p>";
-    return;
-  }
+  rootElem.innerHTML = ""; 
 
   episodeList.forEach((episode) => {
     const episodeCard = document.createElement("section");
@@ -25,35 +57,36 @@ function makePageForEpisodes(episodeList) {
     const episodeCode = `S${season}E${number}`;
 
     episodeCard.innerHTML = `
-      <h2>${episode.name} (${episodeCode})</h2>
+      <h2>${episode.name} - ${episodeCode}</h2>
       <img src="${episode.image?.medium || ''}" alt="${episode.name}">
-      <div>${episode.summary || ''}</div>
+      <div class="summary">${episode.summary || ''}</div>
     `;
     rootElem.appendChild(episodeCard);
   });
 }
 
-// Level 300: Fetch data from API
+// Requirement 2: Main setup function with Fetch
 async function setup() {
   const rootElem = document.getElementById("root");
   
-  // Requirement 4: Show loading message
-  rootElem.innerHTML = "<p class='loading'>Loading episodes from TVMaze... please wait.</p>";
+  // Requirement 4: Show loading state
+  rootElem.innerHTML = "<p class='loading'>Loading episodes from TVMaze...</p>";
 
   try {
-    // Requirement 2: Fetching from the API URL
     const response = await fetch("https://api.tvmaze.com/shows/82/episodes");
     
     if (!response.ok) {
-      throw new Error("Failed to fetch episodes");
+      throw new Error("Could not reach the TVMaze server.");
     }
 
     allEpisodesData = await response.json();
 
-    // Requirement 3: Render only once after fetching
+    // Initial render
     makePageForEpisodes(allEpisodesData);
+    populateSelect(allEpisodesData);
+    updateCounter(allEpisodesData.length, allEpisodesData.length);
 
-    // Setup Search (Requirement remains from Level 200)
+    // Setup Search Input
     const searchInput = document.getElementById("search-input");
     searchInput.addEventListener("input", (e) => {
       const term = e.target.value.toLowerCase();
@@ -62,14 +95,15 @@ async function setup() {
         stripHtml(ep.summary).toLowerCase().includes(term)
       );
       makePageForEpisodes(filtered);
+      updateCounter(filtered.length, allEpisodesData.length);
     });
 
   } catch (error) {
-    // Requirement 5: Notify the user of an error (not just console.log)
+    // Requirement 5: Visual error notification for user
     rootElem.innerHTML = `
-      <div class="error">
-        <p>⚠️ Sorry, we couldn't load the episodes right now.</p>
-        <p>Technical details: ${error.message}</p>
+      <div class="error-box">
+        <p>⚠️ Error: ${error.message}</p>
+        <button onclick="location.reload()">Try Again</button>
       </div>
     `;
   }

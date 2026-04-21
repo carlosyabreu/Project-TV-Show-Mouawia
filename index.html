@@ -8,12 +8,24 @@
   </head>
 
   <body>
-    <div class="search-container">
-      <input type="text" id="search-input" placeholder="Search episodes..." />
-      <span id="episode-count"></span>
-    </div>
+    <header>
+      <div class="search-controls">
+        <input type="text" id="search-input" placeholder="Search episodes..." />
+        
+        <select id="episode-select">
+          <option value="">All Episodes</option>
+        </select>
+        
+        <span id="episode-count"></span>
+      </div>
+    </header>
 
-    <div id="root"></div>
+    <main id="root">
+      </main>
+
+    <footer>
+      <p>Data provided by <a href="https://www.tvmaze.com/" target="_blank">TVMaze.com</a></p>
+    </footer>
 
     <script src="script.js"></script>
   </body>
