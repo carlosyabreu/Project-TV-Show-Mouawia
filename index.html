@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="en"> ```
-
----
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TV Show Project | Mouawia Elkhalifa (MouawiaElkhalifa)</title>
+    <title>TV Show Project | Mouawia Elkhalifa</title>
     <link href="style.css" rel="stylesheet" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
 
   <body>
-    <div id="root">
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search episodes..." />
+      <span id="episode-count"></span>
     </div>
 
-    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-    <script src="episodes.js"></script>
+    <div id="root"></div>
 
-    <!-- Loads YOUR javascript code -->
     <script src="script.js"></script>
   </body>
 </html>
